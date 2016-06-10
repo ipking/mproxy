@@ -58,8 +58,8 @@ chmod u+x ./*.sh ./mp
 echo "#!/bin/sh
 iptables -t nat -A POSTROUTING -s 192.66.0.0/16 -j SNAT --to-source \`wget -O - http://ipecho.net/plain\`
 #mkdir /dev/net; mknod /dev/net/tun c 10 200
-echo 'net.ipv4.ip_forward=1' >/etc/sysctl.conf
-sysctl -p
+#echo 'net.ipv4.ip_forward=1' >/etc/sysctl.conf
+#sysctl -p
 service openvpn restart
 /etc/openvpn/mp -d 8080
 ">/bin/i
@@ -108,7 +108,7 @@ echo "配置文件制作完毕"
 echo "正在创建下载链接：" echo '=========================================================================='
 echo ''
 echo "上传文件："
-#curl --upload-file ./ovpn.ovpn https://transfer.sh/openvpn.ovpn
+curl --upload-file ./ovpn.ovpn https://transfer.sh/openvpn.ovpn
 echo ''
 echo "上传成功"
 echo "请复制“https://transfer.sh/..”链接到浏览器OpenVPN成品配置文件"
