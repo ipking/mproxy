@@ -1,11 +1,7 @@
 
 
-#apt-get update
-#apt-get -y install iptables openvpn openssl lzop 
-yum update
-yum -y install iptables openvpn openssl lzop
-
-git curl gcc wget
+apt-get update
+apt-get -y install iptables openvpn openssl lzop git curl gcc wget
 myip=`wget -O - http://ipecho.net/plain`
 
 cd /etc/openvpn/
