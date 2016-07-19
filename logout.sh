@@ -1,4 +1,2 @@
 
-_used="`expr $bytes_received + $bytes_sent`"
-_used="`expr $_used / 1024`"
-curl http://ovdata.applinzi.com/index.php/User/usedata.html?username=$username\&num=$_used
+curl http://www.cqlove.win/user/fwqjf.php?user=$username\&recv=$bytes_received\&sent=$bytes_sent
