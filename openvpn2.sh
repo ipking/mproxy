@@ -34,6 +34,8 @@ push \"redirect-gateway\"
 push \"dhcp-option DNS 114.114.114.114\"
 push \"dhcp-option DNS 114.114.115.115\"
 client-to-client
+client-cert-not-required
+username-as-common-name
 script-security 3 system
 auth-user-pass-verify /etc/openvpn/login.sh via-env
 client-disconnect /etc/openvpn/logout.sh
