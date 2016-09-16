@@ -29,7 +29,7 @@ cert /etc/openvpn/easy-rsa/2.0/keys/server.crt
 key /etc/openvpn/easy-rsa/2.0/keys/server.key
 dh /etc/openvpn/easy-rsa/2.0/keys/dh1024.pem
 ifconfig-pool-persist ipp.txt
-server 192.66.1.0 255.255.255.0
+server 10.0.0.0 255.255.0.0
 push \"redirect-gateway\"
 push \"dhcp-option DNS 114.114.114.114\"
 push \"dhcp-option DNS 114.114.115.115\"
@@ -39,10 +39,9 @@ username-as-common-name
 script-security 3 system
 auth-user-pass-verify /etc/openvpn/login.sh via-env
 client-disconnect /etc/openvpn/logout.sh
-duplicate-cn
 keepalive 20 60
 comp-lzo
-max-clients 50
+max-clients 50000
 persist-key
 persist-tun
 status /home/wwwroot/default/res/openvpn-status.txt
@@ -73,6 +72,8 @@ iptables -A INPUT -p TCP --dport 22 -j ACCEPT
 iptables -t nat -A POSTROUTING -j MASQUERADE
 
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j DNAT --to-destination $myip:443
 
 service iptables save
 
