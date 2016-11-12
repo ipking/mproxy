@@ -1,5 +1,3 @@
-
-
 apt-get update
 apt-get -y install iptables openvpn openssl lzop git curl gcc wget
 myip=`wget -O - http://ipecho.net/plain`
@@ -18,7 +16,7 @@ echo '正在编译mproxy'
 gcc -o ./mp ./mproxy/mproxy.c
 echo
 echo 
-echo "写入配置文件"
+echo "写入tcp配置文件"
 echo "
 local 0.0.0.0
 port 443
@@ -49,7 +47,41 @@ log-append openvpn.log
 verb 3
 mute 20
 ">server.conf
-echo "配置文件制作完毕"
+echo "tcp配置文件制作完毕"
+echo
+echo 
+echo "写入udp配置文件"
+echo "
+
+local 0.0.0.0
+port 137
+proto udp
+dev tun
+ca /etc/openvpn/easy-rsa/2.0/keys/ca.crt
+cert /etc/openvpn/easy-rsa/2.0/keys/server.crt
+key /etc/openvpn/easy-rsa/2.0/keys/server.key
+dh /etc/openvpn/easy-rsa/2.0/keys/dh1024.pem
+ifconfig-pool-persist ipp.txt
+server 10.1.0.0 255.255.0.0
+push "redirect-gateway"
+push "dhcp-option DNS 114.114.114.114"
+push "dhcp-option DNS 114.114.115.115"
+client-to-client
+client-cert-not-required
+username-as-common-name
+script-security 3 system
+auth-user-pass-verify /etc/openvpn/login.sh via-env
+client-disconnect /etc/openvpn/logout.sh
+keepalive 20 60
+comp-lzo
+max-clients 50000
+persist-key
+persist-tun
+status openvpn-udp.txt
+log-append openvpn.log
+verb 3
+mute 20
+">server_udp.conf
 echo
 sleep 3
 clear
@@ -67,24 +99,27 @@ iptables -A INPUT -p TCP --dport 443 -j ACCEPT #OpenVPN服务端口，可自定�
 
 iptables -A INPUT -p TCP --dport 8080 -j ACCEPT #squid转发端口，可自定义（代理端口）
 
+iptables -A INPUT -p TCP --dport 137 -j ACCEPT
+
+iptables -A INPUT -p TCP --dport 138 -j ACCEPT
+
 iptables -A INPUT -p TCP --dport 22 -j ACCEPT
 
 iptables -t nat -A POSTROUTING -j MASQUERADE
 
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j DNAT --to-destination $myip:443
+iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j DNAT --to-destination myip:443
 
 service iptables save
 
 service iptables restart
-################################
-#iptables -t nat -A POSTROUTING -s 192.66.0.0/16 -j #SNAT --to-source \`wget -O - #http://ipecho.net/plain\`
-#mkdir /dev/net; mknod /dev/net/tun c 10 200
 echo 'net.ipv4.ip_forward=1' >/etc/sysctl.conf
 sysctl -p
 service openvpn restart
 /etc/openvpn/mp -d 8080
+/etc/openvpn/mp -l 138 -d
+/etc/openvpn/mp -l 137 -d
 ">/bin/i
 chmod a+x /bin/i
 i
@@ -140,3 +175,33 @@ echo '正在设置Cron重启脚本'
 #echo '59 23 * * * root service openvpn soft-restart' >>/etc/crontab
 echo '=========================================================================='
 echo 您的IP是：$myip
+echo 正在制作重启脚本
+cd /root
+echo "
+service openvpn restart
+/etc/openvpn/mp -d 8080
+/etc/openvpn/mp -l 138 -d
+/etc/openvpn/mp -l 137 -d
+iptables -t nat -A POSTROUTING -s 192.66.0.0/16 -o eth0 -j MASQUERADE
+
+iptables -A INPUT -p TCP --dport 443 -j ACCEPT #OpenVPN服务端口，可自定义，不可冲突
+
+iptables -A INPUT -p TCP --dport 8080 -j ACCEPT #squid转发端口，可自定义（代理端口）
+
+iptables -A INPUT -p TCP --dport 137 -j ACCEPT
+
+iptables -A INPUT -p TCP --dport 138 -j ACCEPT
+
+iptables -A INPUT -p TCP --dport 22 -j ACCEPT
+
+iptables -t nat -A POSTROUTING -j MASQUERADE
+
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j DNAT --to-destination myip:443
+
+service iptables save
+
+service iptables restart
+" >restart.sh
+chmod u+x ./*.sh
