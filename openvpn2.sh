@@ -109,7 +109,7 @@ iptables -t nat -A POSTROUTING -j MASQUERADE
 
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j DNAT --to-destination myip:443
+iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j DNAT --to-destination $myip:443
 
 service iptables save
 
@@ -198,7 +198,7 @@ iptables -t nat -A POSTROUTING -j MASQUERADE
 
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j DNAT --to-destination myip:443
+iptables -t nat -A PREROUTING -p tcp -m tcp --dport 53 -j DNAT --to-destination $myip:443
 
 service iptables save
 
