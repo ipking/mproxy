@@ -42,7 +42,7 @@ comp-lzo
 max-clients 50000
 persist-key
 persist-tun
-status /home/wwwroot/default/res/openvpn-status.txt
+status openvpn-status.txt
 log-append openvpn.log
 verb 3
 mute 20
@@ -77,7 +77,7 @@ comp-lzo
 max-clients 50000
 persist-key
 persist-tun
-status openvpn-udp.txt
+status openvpn-status.txt
 log-append openvpn.log
 verb 3
 mute 20
